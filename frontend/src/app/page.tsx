@@ -3,12 +3,11 @@
 import { FormEvent, useState } from "react";
 import {
   ArrowUp,
-  Check,
+  CheckCircle2,
   Database,
   FileText,
   Globe2,
   Loader2,
-  ShieldCheck,
 } from "lucide-react";
 
 type ApiResponse = {
@@ -57,7 +56,7 @@ export default function Home() {
       setError(
         err instanceof Error
           ? err.message
-          : "Unable to reach backend."
+          : "Unable to reach the backend."
       );
     } finally {
       setLoading(false);
@@ -67,58 +66,59 @@ export default function Home() {
   const agents = result?.agents || [];
 
   return (
-    <main className="shell">
-      <header className="topbar">
-        <div className="brand">
-          <div className="mark">CR</div>
-          <span>COLLAB RAG</span>
+    <main className="app-shell">
+      <header className="header">
+        <div>
+          <div className="product-name">RAG WORKSPACE</div>
+          <div className="product-subtitle">
+            Multi-source retrieval orchestration
+          </div>
         </div>
 
-        <div className="status">
-          <span className="dot" />
-          SYSTEM ONLINE
+        <div className="stack-label">
+          LangGraph / FastAPI / Qdrant
         </div>
       </header>
 
-      <section className="hero">
-        <div className="eyebrow">
-          MULTI-AGENT RETRIEVAL SYSTEM / 01
+      <section className="query-section">
+        <div className="query-copy">
+          <span className="kicker">QUERY</span>
+
+          <h1>
+            Search documents, structured data,
+            and the web in one workflow.
+          </h1>
+
+          <p>
+            The system routes each question to the right retrieval
+            source, gathers evidence, checks it, and returns a grounded
+            response.
+          </p>
         </div>
 
-        <h1>
-          Intelligence across
-          <br />
-          every source.
-        </h1>
-
-        <p>
-          Specialized agents search documents, databases and the web,
-          then combine evidence into one response.
-        </p>
-
-        <form className="query" onSubmit={submitQuestion}>
+        <form className="query-box" onSubmit={submitQuestion}>
           <textarea
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask across your knowledge..."
+            placeholder="Ask a question across your connected knowledge..."
           />
 
-          <button type="submit">
+          <button type="submit" disabled={loading}>
             {loading ? (
-              <Loader2 className="spin" size={20} />
+              <Loader2 size={18} className="spin" />
             ) : (
-              <ArrowUp size={20} />
+              <ArrowUp size={18} />
             )}
           </button>
         </form>
 
-        <div className="examples">
+        <div className="quick-queries">
           <button
             onClick={() =>
               setQuestion("What AI skills does the candidate have?")
             }
           >
-            Candidate AI skills
+            Candidate skills
           </button>
 
           <button
@@ -126,7 +126,7 @@ export default function Home() {
               setQuestion("What is the highest selling product in Q3?")
             }
           >
-            Highest Q3 sales
+            Q3 sales
           </button>
 
           <button
@@ -136,154 +136,171 @@ export default function Home() {
               )
             }
           >
-            Cross-source comparison
+            Cross-source query
           </button>
         </div>
       </section>
 
-      <section className="agents">
-        <div className="section-title">
-          <span>ACTIVE AGENTS</span>
-          <span>03 CONNECTED</span>
+      <section className="sources-section">
+        <div className="section-header">
+          <span>SOURCES</span>
+          <span>3 CONNECTED</span>
         </div>
 
-        <div className="agent-grid">
-          <AgentCard
-            icon={<FileText size={19} />}
-            name="DOCUMENT"
-            detail="PDF - Semantic Retrieval"
+        <div className="source-grid">
+          <SourceCard
+            icon={<FileText size={18} />}
+            title="Documents"
+            description="PDF retrieval and semantic search"
             active={agents.includes("document")}
           />
 
-          <AgentCard
-            icon={<Database size={19} />}
-            name="DATABASE"
-            detail="SQLite - Structured Data"
+          <SourceCard
+            icon={<Database size={18} />}
+            title="Database"
+            description="Structured SQLite records"
             active={agents.includes("database")}
           />
 
-          <AgentCard
-            icon={<Globe2 size={19} />}
-            name="WEB"
-            detail="Live Search"
+          <SourceCard
+            icon={<Globe2 size={18} />}
+            title="Web"
+            description="External search results"
             active={agents.includes("web")}
           />
         </div>
       </section>
 
       {(loading || result || error) && (
-        <section className="workspace">
-          <div className="trace">
-            <div className="section-title">
-              <span>EXECUTION TRACE</span>
+        <section className="result-layout">
+          <aside className="steps-panel">
+            <div className="section-header">
+              <span>RETRIEVAL STEPS</span>
               <span>{loading ? "RUNNING" : "COMPLETE"}</span>
             </div>
 
-            <TraceRow number="01" title="ROUTER" />
+            <Step
+              number="01"
+              title="Route query"
+              description="Identify required data sources"
+            />
 
             {agents.map((agent, index) => (
-              <TraceRow
+              <Step
                 key={agent}
                 number={`0${index + 2}`}
-                title={`${agent.toUpperCase()} AGENT`}
+                title={`Search ${agent}`}
+                description="Retrieve relevant evidence"
               />
             ))}
 
             {result && (
               <>
-                <TraceRow
+                <Step
                   number={`0${agents.length + 2}`}
-                  title="CRITIC"
+                  title="Check evidence"
+                  description="Validate retrieval quality"
                 />
-                <TraceRow
+
+                <Step
                   number={`0${agents.length + 3}`}
-                  title="SYNTHESIS"
+                  title="Compose response"
+                  description="Merge retrieved evidence"
                 />
               </>
             )}
-          </div>
+          </aside>
 
-          <div className="response">
-            <div className="section-title">
+          <section className="response-panel">
+            <div className="section-header">
               <span>RESPONSE</span>
-
-              {result && (
-                <span className="reviewed">
-                  <ShieldCheck size={14} />
-                  REVIEWED
+              {result?.critique?.passed && (
+                <span className="review-status">
+                  <CheckCircle2 size={14} />
+                  Evidence checked
                 </span>
               )}
             </div>
 
             {loading && (
               <div className="loading-state">
-                Agents are retrieving evidence...
+                Retrieving evidence...
               </div>
             )}
 
-            {error && <div className="error">{error}</div>}
+            {error && (
+              <div className="error-message">
+                {error}
+              </div>
+            )}
 
             {result && (
               <>
-                <span className="mini-label">QUERY</span>
-                <h2>{result.question}</h2>
+                <div className="response-query">
+                  {result.question}
+                </div>
 
-                <span className="mini-label">EVIDENCE</span>
-                <pre>{result.answer}</pre>
+                <pre className="response-answer">
+                  {result.answer}
+                </pre>
               </>
             )}
-          </div>
+          </section>
         </section>
       )}
 
-      <footer>
-        <span>MULTI-AGENT COLLABORATIVE RAG</span>
-        <span>LANGGRAPH / FASTAPI / QDRANT</span>
+      <footer className="footer">
+        <span>Multi-Agent Collaborative RAG</span>
+        <span>Document / Database / Web</span>
       </footer>
     </main>
   );
 }
 
-function AgentCard({
+function SourceCard({
   icon,
-  name,
-  detail,
+  title,
+  description,
   active,
 }: {
   icon: React.ReactNode;
-  name: string;
-  detail: string;
+  title: string;
+  description: string;
   active: boolean;
 }) {
   return (
-    <div className={`agent-card ${active ? "active" : ""}`}>
-      <div className="icon">{icon}</div>
+    <div className={`source-card ${active ? "source-active" : ""}`}>
+      <div className="source-icon">{icon}</div>
 
       <div>
-        <strong>{name}</strong>
-        <span>{detail}</span>
+        <div className="source-title">{title}</div>
+        <div className="source-description">{description}</div>
       </div>
 
-      <div className="agent-status">
-        {active && <Check size={12} />}
+      <div className="source-state">
         {active ? "USED" : "READY"}
       </div>
     </div>
   );
 }
 
-function TraceRow({
+function Step({
   number,
   title,
+  description,
 }: {
   number: string;
   title: string;
+  description: string;
 }) {
   return (
-    <div className="trace-row">
-      <span>{number}</span>
-      <strong>{title}</strong>
-      <Check size={15} />
+    <div className="step-row">
+      <div className="step-number">{number}</div>
+
+      <div>
+        <div className="step-title">{title}</div>
+        <div className="step-description">{description}</div>
+      </div>
     </div>
   );
 }
