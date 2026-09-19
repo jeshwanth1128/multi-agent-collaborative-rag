@@ -39,8 +39,9 @@ def get_planner_model():
 
     model = ChatGoogleGenerativeAI(
         model=settings.gemini_model,
-        google_api_key=settings.gemini_api_key,
-        temperature=0,
+        google_api_key=settings.gemini_api_key.get_secret_value(),
+        timeout=20,
+        max_retries=2,
     )
 
     return model.with_structured_output(QueryPlan)

@@ -1,10 +1,14 @@
 import sqlite3
-from pathlib import Path
 
-DB_PATH = Path("data/sample.db")
+from app.config import get_settings
+
+DB_PATH = get_settings().resolve_path(get_settings().database_path)
 
 
 def main():
+    if DB_PATH.exists():
+        print("Database already exists; leaving it unchanged.")
+        return
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     connection = sqlite3.connect(DB_PATH)

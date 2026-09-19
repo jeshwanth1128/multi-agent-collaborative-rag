@@ -1,12 +1,20 @@
+import argparse
 from pathlib import Path
 
+from app.config import PROJECT_ROOT
 from app.retrieval.chunker import chunk_document
 from app.retrieval.document_loader import load_document
 from app.retrieval.vector_store import index_chunks
 
 
 def main() -> None:
-    document_path = Path("data/documents/sample.pdf")
+    parser = argparse.ArgumentParser(
+        description="Index a document without deleting other sources."
+    )
+    parser.add_argument(
+        "path", nargs="?", default=str(PROJECT_ROOT / "data/documents/sample.pdf")
+    )
+    document_path = Path(parser.parse_args().path).resolve()
 
     print(f"Loading: {document_path}")
 

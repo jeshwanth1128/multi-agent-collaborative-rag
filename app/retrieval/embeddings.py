@@ -1,12 +1,12 @@
 from functools import lru_cache
 
-from sentence_transformers import SentenceTransformer
-
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 
 
 @lru_cache
-def get_embedding_model() -> SentenceTransformer:
+def get_embedding_model():
+    from sentence_transformers import SentenceTransformer
+
     return SentenceTransformer(MODEL_NAME)
 
 

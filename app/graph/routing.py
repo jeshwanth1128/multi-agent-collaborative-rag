@@ -21,6 +21,8 @@ def route_query(question: str) -> list[str]:
         "product",
         "q3",
         "q2",
+        "q1",
+        "q4",
         "transaction",
     ]
 

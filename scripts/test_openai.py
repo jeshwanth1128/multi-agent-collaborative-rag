@@ -1,21 +1,11 @@
-from langchain_openai import ChatOpenAI
+"""Legacy command name retained; verifies the configured Gemini provider."""
 
-from app.config import get_settings
+from app.agents.planner import get_planner_model
 
 
-def main() -> None:
-    settings = get_settings()
-
-    model = ChatOpenAI(
-        model=settings.openai_model,
-        api_key=settings.openai_api_key,
-    )
-
-    response = model.invoke(
-        "Reply with exactly these two words: CONNECTION OK"
-    )
-
-    print(response.content)
+def main():
+    get_planner_model().invoke("Select the agent to search a document.")
+    print("CONNECTION OK")
 
 
 if __name__ == "__main__":
